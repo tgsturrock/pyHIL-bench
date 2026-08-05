@@ -1,0 +1,64 @@
+# =====================================================================
+# pyHIL-bench System Requirements Specification
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# 1. Physics Engine Module (hil_core/physics_engine.py)
+# ---------------------------------------------------------------------
+physics_engine:
+  HLR-PHY-IN-001:
+    title: "Discrete Time-Step Integration Parameter"
+    description: "The physics engine shall accept a fixed step size parameter (dt) for numerical integration (default 0.02s / 50 Hz)."
+    verification_method: "Test"
+
+  HLR-PHY-OUT-001:
+    title: "Truth Kinematic Vector Generation"
+    description: "The physics engine shall calculate 3D position [x,y,z], velocity [vx,vy,vz], and acceleration [ax,ay,az]."
+    verification_method: "Test"
+
+  HLR-PHY-BEH-001:
+    title: "Ground Plane Constraint"
+    description: "The physics engine shall enforce a spatial boundary of z >= 0.0m, resetting vertical velocity (vz) to 0 upon contact."
+    verification_method: "Test"
+
+# ---------------------------------------------------------------------
+# 2. Fault Injector Engine (hil_core/fault_injector.py)
+# ---------------------------------------------------------------------
+fault_injector:
+  HLR-FLT-001:
+    title: "Gaussian Sensor Noise Injection"
+    description: "The fault injector shall apply configurable normal-distribution noise to physics truth vectors."
+    verification_method: "Test"
+
+  HLR-FLT-002:
+    title: "GPS Packet Drop Condition"
+    description: "The fault injector shall simulate complete loss of GPS state vectors for user-defined durations."
+    verification_method: "Test"
+
+  HLR-FLT-003:
+    title: "Sensor Bias / Offset Drift"
+    description: "The fault injector shall apply dynamic constant bias or linearly increasing drift to IMU state variables."
+    verification_method: "Test"
+
+# ---------------------------------------------------------------------
+# 3. Telemetry Generator (interfaces/telemetry_generator.py)
+# ---------------------------------------------------------------------
+telemetry_generator:
+  HLR-TEL-001:
+    title: "State Merging Engine"
+    description: "The telemetry generator shall combine physics engine truth outputs with active fault injection modifiers."
+    verification_method: "Test"
+
+  HLR-TEL-002:
+    title: "UDP Serialization & Transport"
+    description: "The telemetry generator shall serialize corruptible telemetry frames into JSON format over UDP port 5005 at 50 Hz."
+    verification_method: "Test"
+
+# ---------------------------------------------------------------------
+# 4. Pytest Verification Engine (tests/)
+# ---------------------------------------------------------------------
+verification_engine:
+  HLR-VER-001:
+    title: "SUT Failsafe Trigger Assertions"
+    description: "The test harness shall assert that the SUT transitions to Emergency Failsafe mode within 200ms of a GPS loss fault injection."
+    verification_method: "Test"
