@@ -6,7 +6,7 @@ class Vector3D:
     y: float = 0.0
     z: float = 0.0
 
-# HLR-PHY-OUT-001 "Truth Kinematic Vector Generation"
+# Implementation of HLR-PHY-OUT-001 Vector Generation and HLR-PHY-IN-001 Discrete Time-Step 
 class PhysicsEngine:
     def __init__(self, dt: float = 0.02, mass: float = 1.0, g: float = 9.81):
         self.dt = dt
@@ -39,7 +39,7 @@ class PhysicsEngine:
         self.position.z += self.velocity.z * self.dt
 
 
-        # HLR-PHY-BEH-001 "Ground Plane Constraint"
+        # Implementation of HLR-PHY-BEH-001 "Ground Plane Constraint"
         # 4 Make sure there is a ground boundary ( z = 0 )
         if self.position.z <= 0.0:
             self.position.z = 0.0
@@ -53,3 +53,11 @@ class PhysicsEngine:
             "velocity": [self.velocity.x, self.velocity.y, self.velocity.z],
             "acceleration": [self.acceleration.x, self.acceleration.y, self.acceleration.z]
         }
+
+    def get_state(self) -> dict:
+        """Returns the current truth kinematic vectors."""
+        return {
+            "position": self.position,
+            "velocity": self.velocity,
+            "acceleration": self.acceleration,
+    }
