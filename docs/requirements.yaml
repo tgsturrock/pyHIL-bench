@@ -62,3 +62,17 @@ verification_engine:
     title: "SUT Failsafe Trigger Assertions"
     description: "The test harness shall assert that the SUT transitions to Emergency Failsafe mode within 200ms of a GPS loss fault injection."
     verification_method: "Test"
+
+# ---------------------------------------------------------------------
+# 5. Network Transport Layer (interfaces/transport.py)
+# ---------------------------------------------------------------------
+transport_layer:
+  HLR-TRN-001:
+    title: "UDP Socket Handling"
+    description: "The transport module shall open a UDP socket to 127.0.0.1:5005, send non-empty byte payloads to the SUT, and cleanly close the socket on teardown."
+    verification_method: "Test"
+
+  HLR-TRN-002:
+    title: "Dropped Frame Handling"
+    description: "When receiving a None payload (a dropped packet from the fault injector), the transport module shall skip network sending entirely without throwing an error."
+    verification_method: "Test"
