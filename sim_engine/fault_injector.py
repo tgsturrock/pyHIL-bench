@@ -2,6 +2,8 @@ import random
 from dataclasses import dataclass
 from typing import Optional
 
+from sim_engine.physics_engine import Vector3D
+
 @dataclass
 class   FaultConfig:
     """Configure active faults to inject into the truth state."""
@@ -24,28 +26,27 @@ class FaultInjector:
         """Checks if packet drop loss is probable (eg < 0.0) if it is, it rolls the dice for chance of packet loss. 
            Higher packet_drop_prob is (eg closer to 1.0), more chance for packet loss. 
            random.random return num between 0.0 and 1.0 """
+
+
         if self.config.packet_drop_prob > 0.0: 
             if random.random() < self.config.packet_drop_prob:
                 return None # Sim packet loss
 
-        # Create copy so to not change original the true data
-        corrupted = { 
-            "position": list(truth_state["position"]),
-            "velocity": list(truth_state["velocity"]),
-            "acceleration": list(truth_state["acceleration"]),
-        }
+        # Make a fresh Vector3D so modifying corrupted doesn't touch truth_state
+        corrupted = {}
+        for key, vec in truth_state.items():    
+            corrupted[key] = Vector3D(vec.x, vec.y, vec.z)
 
         # 2 Inject Gaussian Noise (HRL_FLT-001)
         if self.config.noise_std > 0.0:
-            for key in ["position", "velocity", "acceleration"]:
-                corrupted[key] = [
-                    val + random.gauss(0.0, self.config.noise_std)
-                    for val in corrupted[key] # Loop through x, y, z values to inject noise
-                ]
+            for vec in corrupted.values():                
+                vec.x += random.gauss(0.0, self.config.noise_std)
+                vec.y += random.gauss(0.0, self.config.noise_std)
+                vec.z += random.gauss(0.0, self.config.noise_std)
 
         # 3 Inject Constant Bias (HLR-FLT-002)
         if self.config.bias_z != 0.0:
-            corrupted["position"][2] += self.config.bias_z
+            corrupted["position"].z += self.config.bias_z
 
         return corrupted
      
