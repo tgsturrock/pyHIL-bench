@@ -1,10 +1,13 @@
 from dataclasses import dataclass
 
 @dataclass
+
 class Vector3D:
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
+    def __iter__(self):
+        return iter((self.x, self.y, self.z))
 
 # Implementation of HLR-PHY-OUT-001 Vector Generation and HLR-PHY-IN-001 Discrete Time-Step 
 class PhysicsEngine:
