@@ -17,7 +17,7 @@ class FaultInjector:
            default FaultConfig() object and use that instead"""
         self.config = config if config else FaultConfig()
 
-    def process(self, truth_state: dict) -> Optional[dict]:
+    def inject(self, truth_state: dict) -> Optional[dict]:
         """
         Receives truth state dictionar, applies configured faults 
         and returns corrupted stats dictionary (or non if packet is dropped)
