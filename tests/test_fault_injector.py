@@ -14,7 +14,7 @@ def test_hlr_flt_001_gaussian_noise():
     }
 
     # Corrupt data
-    corrupted = injector.process(truth_state)
+    corrupted = injector.inject(truth_state)
 
     assert corrupted is not None
     # Verify values changed after fault injection
@@ -32,7 +32,7 @@ def test_hlr_flt_002_constant_bias_z():
     }
 
     # Corrupt data
-    corrupted = injector.process(truth_state)
+    corrupted = injector.inject(truth_state)
     
     assert corrupted is not None
     # Z-axis (index 2) should be 10.0 + 5.0 = 15.0
@@ -50,7 +50,7 @@ def test_hlr_flt_003_packet_drop():
         "acceleration": Vector3D(0.0, 0.0, 0.0),
     }
 
-    corrupted = injector.process(truth_state)
+    corrupted = injector.inject(truth_state)
 
     # Must return None on dropped packets
     assert corrupted is None
