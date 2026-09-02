@@ -52,9 +52,9 @@ class PhysicsEngine:
                 self.acceleration.z = max(0.0, self.acceleration.z)
 
         return {
-            "position": [self.position.x, self.position.y, self.position.z],
-            "velocity": [self.velocity.x, self.velocity.y, self.velocity.z],
-            "acceleration": [self.acceleration.x, self.acceleration.y, self.acceleration.z]
+            "position": Vector3D(self.position.x, self.position.y, self.position.z),
+            "velocity": Vector3D(self.velocity.x, self.velocity.y, self.velocity.z),
+            "acceleration": Vector3D(self.acceleration.x, self.acceleration.y, self.acceleration.z)
         }
 
     def get_state(self) -> dict:
