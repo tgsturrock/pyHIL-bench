@@ -4,6 +4,7 @@ from sim_engine.fault_injector import FaultConfig, FaultInjector
 from sim_engine.physics_engine import PhysicsEngine
 from interfaces.telemetry_gen import TelemetryGenerator
 from interfaces.transport import UDPTransport
+from sim_engine.scenarios import SpiralClimb, LevelFlight, VerticalClimb
 
 def run_hil_simulation():
     """ Main Orchestrator exectuting HIL Pilpeline at 50Hz """
@@ -13,11 +14,14 @@ def run_hil_simulation():
     HOST_IP = "127.0.0.1"
     PORT = 5005
 
-    phys_eng = PhysicsEngine()
+    phys_eng = PhysicsEngine(dt=LOOP_DT)
     fault_config = FaultConfig(noise_std = 0.05, bias_z = 0.2, packet_drop_prob = 0.2)
     fault_injector = FaultInjector(config = fault_config)
     telemetry = TelemetryGenerator()
     transport = UDPTransport(host = HOST_IP, port = PORT )
+
+    # 1. Instantiate scenario under test (e.g., SpiralClimb for 10 seconds)
+    scenario = VerticalClimb(duration=10.0)
 
     print(f"[HIL BENCH] Starting execution loop @ {TARGET_HZ}Hz (dt={LOOP_DT*1000:.1f}ms)...")
     print(f"[HIL BENCH] Target UDP output: {transport.host}:{transport.port}")
@@ -27,18 +31,22 @@ def run_hil_simulation():
     start_time = time.perf_counter()
 
     try:
-        while True:
+        while not scenario.is_complete(frame_count * LOOP_DT):
             cycle_start = time.perf_counter()
+            time_stamp = frame_count * LOOP_DT  # Use deterministic sim time for physics evaluation
 
-            # Physics engine generates one frame of data
-            phys_eng.step()
+            # 1. Fetch scenario forces
+            forces = scenario.get_forces(time_stamp)
+
+            # 2. Advance physics using scenario forces
+            phys_eng.step(external_forces=forces)
             truth_state = phys_eng.get_state()
 
             # Possible fault injection in data
             corrupted_state = fault_injector.inject(truth_state)
 
             # Send telemetry information
-            time_stamp = cycle_start- start_time
+            #time_stamp = cycle_start- start_time
             payload = telemetry.pack(corrupted_state, timestamp=time_stamp)
             transport.send(payload)
 
