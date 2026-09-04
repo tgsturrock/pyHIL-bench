@@ -24,7 +24,7 @@ class TimedScenario:
     def is_complete(self, t: float) -> bool:
         return t >= self.duration
 
-class LevelFlight:
+class LevelFlight(TimedScenario):
     """Constant forward thrust on X axis for steady velocity"""
     def __init__(self, thrust_x: float = 2.0, duration: float = 10.0):
         super().__init__(duration)
@@ -37,7 +37,7 @@ class LevelFlight:
         # Counter balance gravity on Z (mass=1.0, g=9.81) and push forward on X
         return Vector3D(x=self.thrust_x, y=0.0, z=9.81)
 
-class VerticalClimb:
+class VerticalClimb(TimedScenario):
     def __init__(self, climb_force: float = 12.0, duration: float = 10.0):
         super().__init__(duration)
         self.climb_force = climb_force
@@ -48,7 +48,7 @@ class VerticalClimb:
             return Vector3D(x=0.0, y=0.0, z=9.81)
         return Vector3D(x = 0.0, y =0.0, z = self.climb_force)
  
-class SpiralClimb:
+class SpiralClimb(TimedScenario):
     def __init__(self, radius_force: float = 3.0, freq: float = 0.5, climb_force: float = 11.0, duration: float = 10.0):
         super().__init__(duration)
         self.radius_force = radius_force
@@ -57,7 +57,7 @@ class SpiralClimb:
 
     def get_forces(self, t: float) -> Vector3D:
         if self.is_complete(t):
-            # Set all forces back to 0 (Hover mode)
+            # Set all forces back to 0 (Hover mode) 
             return Vector3D(x=0.0, y=0.0, z=9.81)
         
         fx = self.radius_force * math.cos(2 * math.pi * self.freq * t)
