@@ -1,4 +1,5 @@
 import sys
+import json
 import time
 from sim_engine.fault_injector import FaultConfig, FaultInjector
 from sim_engine.physics_engine import PhysicsEngine
@@ -30,6 +31,8 @@ def run_hil_simulation():
     frame_count = 0
     start_time = time.perf_counter()
 
+    trajectory_data = []
+    
     try:
         while not scenario.is_complete(frame_count * LOOP_DT):
             cycle_start = time.perf_counter()
@@ -42,6 +45,14 @@ def run_hil_simulation():
             phys_eng.step(external_forces=forces)
             truth_state = phys_eng.get_state()
 
+            pos = truth_state["position"]
+            trajectory_data.append({
+                "time": time_stamp,
+                "x": pos.x,
+                "y": pos.y,
+                "z": pos.z,
+            })
+            
             # Possible fault injection in data
             corrupted_state = fault_injector.inject(truth_state)
 
@@ -70,6 +81,9 @@ def run_hil_simulation():
         print("\n [HIL BENCH] Shuting down simulation")
 
     finally:
+        # Save flight trajectory to JSON upon exit
+        with open("flight_log.json", "w") as f:
+            json.dump(trajectory_data, f, indent=2)
         transport.close()
         print(f"[HIL_BENCH] Closing comms. Total frame count: {frame_count} ")
     
